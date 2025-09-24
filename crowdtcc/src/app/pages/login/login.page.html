@@ -1,0 +1,64 @@
+<ion-content class="login-bg" [fullscreen]="true">
+  <div class="container">
+    <ion-card class="card">
+      <ion-card-header>
+        <ion-card-title class="title">Bem-vindo à Crow-d</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <ion-item lines="none" class="field">
+            <ion-label position="stacked">E-mail</ion-label>
+            <ion-input
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              inputmode="email"
+              required>
+            </ion-input>
+          </ion-item>
+
+          <ion-item lines="none" class="field">
+            <ion-label position="stacked">Senha</ion-label>
+            <ion-input
+              type="password"
+              formControlName="password"
+              autocomplete="current-password"
+              required>
+            </ion-input>
+          </ion-item>
+
+          <ion-button
+            type="submit"
+            expand="block"
+            class="btn-primary"
+            [disabled]="form.invalid || loading">
+            {{ loading? 'Entrando...' : 'Entrar' }}
+          </ion-button>
+        </form>
+
+        <ion-button
+          expand="block"
+          fill="solid"
+          class="btn-google"
+          (click)="loginWithGoogle()"
+          [disabled]="loading">
+          <ion-icon name="logo-google" slot="start"></ion-icon>
+          Entrar com Google
+        </ion-button>
+
+        <div class="links">
+          <a (click)="forgotPassword()">Esqueceu a senha?</a>
+        </div>
+
+        <div class="divider">
+          <span>ou</span>
+        </div>
+
+        <ion-button expand="block" fill="outline" (click)="goToRegister()">
+          Criar nova conta
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

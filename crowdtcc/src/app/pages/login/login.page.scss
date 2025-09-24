@@ -1,0 +1,55 @@
+.login-bg {
+  --background: #0f1753;
+}
+.container {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.card {
+  width: 100%;
+  max-width: 520px;
+  background: linear-gradient(180deg, #1b2478 0%, #2a2f8a 100%);
+  color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+.title {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+}
+.field {
+  --background: transparent;
+  margin-bottom: 10px;
+  ion-input { --background: #fff; --border-radius: 8px; padding: 6px 10px; }
+}
+.btn-primary {
+  margin-top: 8px;
+  --background: #5865f2;
+  --background-activated: #4654e0;
+  --border-radius: 10px;
+  color: #fff;
+}
+.btn-google {
+  margin-top: 10px;
+  --background: #fff;
+  --color: #1f1f1f;
+  --border-radius: 10px;
+}
+.links {
+  text-align: center;
+  margin: 10px 0;
+  a { color: #cfd6ff; cursor: pointer; }
+}
+.divider {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  color: #aab2ff;
+  margin: 10px 0 14px;
+  &::before, &::after { content: ''; height: 1px; background: rgba(255,255,255,.2); display: block; }
+}
