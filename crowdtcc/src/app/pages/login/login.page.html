@@ -9,23 +9,12 @@
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <ion-item lines="none" class="field">
             <ion-label position="stacked">E-mail</ion-label>
-            <ion-input
-              type="email"
-              formControlName="email"
-              autocomplete="email"
-              inputmode="email"
-              required>
-            </ion-input>
+            <ion-input type="email" formControlName="email" autocomplete="email" required></ion-input>
           </ion-item>
 
           <ion-item lines="none" class="field">
             <ion-label position="stacked">Senha</ion-label>
-            <ion-input
-              type="password"
-              formControlName="password"
-              autocomplete="current-password"
-              required>
-            </ion-input>
+            <ion-input type="password" formControlName="password" autocomplete="current-password" required></ion-input>
           </ion-item>
 
           <ion-button
@@ -33,7 +22,7 @@
             expand="block"
             class="btn-primary"
             [disabled]="form.invalid || loading">
-            {{ loading? 'Entrando...' : 'Entrar' }}
+            {{ loading ? 'Entrando...' : 'Entrar' }}
           </ion-button>
         </form>
 
@@ -51,13 +40,9 @@
           <a (click)="forgotPassword()">Esqueceu a senha?</a>
         </div>
 
-        <div class="divider">
-          <span>ou</span>
-        </div>
+        <div class="divider"><span>ou</span></div>
 
-        <ion-button expand="block" fill="outline" (click)="goToRegister()">
-          Criar nova conta
-        </ion-button>
+        <ion-button expand="block" fill="outline" (click)="goToRegister()">Criar nova conta</ion-button>
       </ion-card-content>
     </ion-card>
   </div>
