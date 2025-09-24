@@ -5,6 +5,9 @@ import { provideIonicAngular } from '@ionic/angular/standalone';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 
+import { addIcons } from 'ionicons';
+import { logoGoogle } from 'ionicons/icons'; // 👈 importa o ícone
+
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 
@@ -15,6 +18,9 @@ const routes: Routes = [
   { path: 'home', loadComponent: () => import('./app/home/home.page').then(m => m.HomePage) },
   { path: '**', redirectTo: 'login' },
 ];
+
+// 👇 registra o ícone antes do bootstrap
+addIcons({ 'logo-google': logoGoogle });
 
 bootstrapApplication(AppComponent, {
   providers: [
