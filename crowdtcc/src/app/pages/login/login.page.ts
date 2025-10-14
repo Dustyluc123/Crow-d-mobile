@@ -1,12 +1,9 @@
-// dustyluc123/crow-d-mobile/Crow-d-mobile-07b88109fe485bc591125439a8532ac0a99c4e28/crowdtcc/src/app/pages/login/login.page.ts
-
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { IonicModule, ToastController } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
-
-import { Auth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
+import { AuthService } from '../../services/auth'; // Importe o serviço
 
 @Component({
   selector: 'app-login',
@@ -16,59 +13,44 @@ import { Auth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup }
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage {
+  private fb: FormBuilder = inject(FormBuilder);
+  private authService: AuthService = inject(AuthService); // Injete o serviço
+  private router: Router = inject(Router);
+
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });
 
-  // >>> BOOLEAN, não signal
   loading: boolean = false;
-
-  constructor(
-    private fb: FormBuilder,
-    private auth: Auth,
-    private router: Router,
-    private toastCtrl: ToastController,
-  ) {}
 
   async onSubmit() {
     if (this.form.invalid || this.loading) return;
+
     this.loading = true;
     const { email, password } = this.form.getRawValue();
-    try {
-      await signInWithEmailAndPassword(this.auth, email!, password!);
-      this.router.navigateByUrl('/home', { replaceUrl: true });
-    } catch (err: any) {
-      this.showToast(err?.message || 'Falha ao entrar.');
-    } finally {
-      this.loading = false;
+    // Verifica se email e password não são nulos antes de passar para o serviço
+    if (email && password) {
+      await this.authService.loginWithEmail(email, password);
     }
+    this.loading = false;
   }
 
   async loginWithGoogle() {
     if (this.loading) return;
+
     this.loading = true;
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(this.auth, provider);
-      this.router.navigateByUrl('/home', { replaceUrl: true });
-    } catch (err: any) {
-      this.showToast(err?.message || 'Falha ao entrar com Google.');
-    } finally {
-      this.loading = false;
-    }
+    await this.authService.loginWithGoogle();
+    this.loading = false;
   }
 
   forgotPassword() {
-    this.showToast('Em breve: recuperação de senha.');
+    // Você pode adicionar a lógica de "Esqueci a senha" aqui se desejar,
+    // talvez chamando um método no seu AuthService.
+    console.log('Botão "Esqueceu a senha?" clicado.');
   }
 
   goToRegister() {
     this.router.navigateByUrl('/register');
-  }
-
-  private async showToast(message: string) {
-    const t = await this.toastCtrl.create({ message, duration: 2500, position: 'bottom' });
-    await t.present();
   }
 }

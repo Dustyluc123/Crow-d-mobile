@@ -10,4 +10,4 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
 })
-export class RegisterPage {}
+export class RegisterPage { }
