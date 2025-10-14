@@ -1,8 +1,10 @@
 // src/main.ts
 
 import { bootstrapApplication } from '@angular/platform-browser';
-import { Routes, provideRouter } from '@angular/router';
+import { Routes, provideRouter, CanActivateFn, Router } from '@angular/router'; // Adicione CanActivateFn e Router
 import { provideIonicAngular } from '@ionic/angular/standalone';
+import { inject } from '@angular/core'; // Adicione inject
+import { firstValueFrom } from 'rxjs'; // Adicione firstValueFrom
 
 import { provideFirebaseApp, initializeApp, getApp } from '@angular/fire/app';
 import { provideAuth, initializeAuth, indexedDBLocalPersistence } from '@angular/fire/auth';
@@ -12,7 +14,37 @@ import { logoGoogle } from 'ionicons/icons';
 
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
-import { authGuard, publicGuard } from './app/auth.guard'; // Importe as guardas
+import { AuthService } from './app/services/auth'; // Importe o AuthService aqui
+
+// --- LÓGICA DAS GUARDAS DE ROTA ---
+// Colocamos a lógica que estava em auth.guard.ts diretamente aqui
+
+const authGuard: CanActivateFn = async () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  const user = await firstValueFrom(authService.currentUser);
+
+  if (user) {
+    return true; // Usuário logado, pode acessar a rota
+  }
+  // Usuário não logado, redireciona para a página de login
+  return router.parseUrl('/login');
+};
+
+const publicGuard: CanActivateFn = async () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  const user = await firstValueFrom(authService.currentUser);
+
+  if (user) {
+    // Usuário já está logado, redireciona para a home
+    return router.parseUrl('/home');
+  }
+  // Usuário não está logado, pode acessar a rota de login/registro
+  return true;
+};
+// --- FIM DA LÓGICA DAS GUARDAS ---
+
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
