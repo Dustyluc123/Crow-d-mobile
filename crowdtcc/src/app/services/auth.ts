@@ -1,54 +1,43 @@
 // src/app/services/auth.ts
 
-import { Injectable, inject, NgZone } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   Auth,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithRedirect, // Importe este
-  getRedirectResult,  // E este
-  UserCredential
+  signInWithRedirect,
+  onAuthStateChanged,
+  User,
+  signOut, // Importe o signOut
 } from '@angular/fire/auth';
 import { ToastController } from '@ionic/angular';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  private auth: Auth = inject(Auth);
-  private router: Router = inject(Router);
-  private toastCtrl: ToastController = inject(ToastController);
-  private ngZone: NgZone = inject(NgZone); // Importante para navegação fora do Angular
+  // BehaviorSubject para expor o estado do usuário de forma reativa
+  public currentUser = new BehaviorSubject<User | null>(null);
 
-  constructor() {
-    // Verifica o resultado do redirecionamento quando o serviço é inicializado
-    this.handleRedirectResult();
-  }
-
-  private async handleRedirectResult(): Promise<void> {
-    try {
-      const result = await getRedirectResult(this.auth);
-      if (result && result.user) {
-        // Usuário logado com sucesso via redirecionamento.
-        // Usamos NgZone para garantir que a navegação aconteça dentro da zona do Angular
-        this.ngZone.run(() => {
-          this.router.navigateByUrl('/home', { replaceUrl: true });
-        });
-      }
-    } catch (err: any) {
-      // Lida com erros do redirecionamento.
-      // Isso pode acontecer se o usuário fechar a página de login.
-      console.error('Erro no redirecionamento do Google:', err);
-      this.showToast(err?.message || 'Falha ao autenticar com Google.');
-    }
+  constructor(
+    private auth: Auth,
+    private router: Router,
+    private toastCtrl: ToastController,
+    private ngZone: NgZone
+  ) {
+    onAuthStateChanged(this.auth, (user) => {
+      // Atualiza o nosso BehaviorSubject com o estado atual do usuário
+      this.currentUser.next(user);
+    });
   }
 
   async loginWithEmail(email: string, password: string): Promise<void> {
     try {
-      const userCredential: UserCredential = await signInWithEmailAndPassword(this.auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
       if (userCredential.user) {
-        this.router.navigateByUrl('/home', { replaceUrl: true });
+        this.ngZone.run(() => this.router.navigateByUrl('/home', { replaceUrl: true }));
       }
     } catch (err: any) {
       this.showToast(err?.message || 'Falha ao entrar.');
@@ -58,15 +47,29 @@ export class AuthService {
   async loginWithGoogle(): Promise<void> {
     try {
       const provider = new GoogleAuthProvider();
-      // Use signInWithRedirect em vez de signInWithPopup
       await signInWithRedirect(this.auth, provider);
     } catch (err: any) {
       this.showToast(err?.message || 'Falha ao iniciar login com Google.');
     }
   }
 
+  // NOVO MÉTODO DE LOGOUT
+  async logout(): Promise<void> {
+    try {
+      await signOut(this.auth);
+      // Redireciona para o login após o logout bem-sucedido
+      this.ngZone.run(() => this.router.navigateByUrl('/login', { replaceUrl: true }));
+    } catch (err: any) {
+      this.showToast('Erro ao sair.');
+    }
+  }
+
   private async showToast(message: string): Promise<void> {
-    const t = await this.toastCtrl.create({ message, duration: 2500, position: 'bottom' });
+    const t = await this.toastCtrl.create({
+      message,
+      duration: 2500,
+      position: 'bottom',
+    });
     await t.present();
   }
 }
