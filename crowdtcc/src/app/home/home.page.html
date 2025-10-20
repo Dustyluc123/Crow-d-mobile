@@ -5,9 +5,80 @@
       <ion-button (click)="logout()">Sair</ion-button>
     </ion-buttons>
   </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [value]="activeFeedType" (ionChange)="changeFeed($event)">
+      <ion-segment-button value="main">
+        <ion-label>Principal</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="friends">
+        <ion-label>Amigos</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="hobbies">
+        <ion-label>Hobbies</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h2>Home</h2>
-  <p>Se você chegou aqui, o login e a navegação estão ok.</p>
+  <div *ngIf="isLoading && posts.length === 0" class="loading-posts">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <ion-list *ngIf="!isLoading || posts.length > 0">
+    <ion-card *ngFor="let post of posts">
+      <ion-card-header>
+        <ion-item>
+          <ion-avatar slot="start">
+            <img [src]="post.authorPhoto || 'assets/icon/favicon.png'" />
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ post.authorName }}</h2>
+            <p>{{ post.timestamp?.toDate() | date:'dd/MM/yy HH:mm' }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-card-header>
+      <ion-card-content>
+        <p>{{ post.content }}</p>
+        <img *ngIf="post.imageUrl" [src]="post.imageUrl" />
+        <div *ngIf="post.hobbies && post.hobbies.length > 0" class="hobbies-container">
+          <ion-chip *ngFor="let hobby of post.hobbies" outline="true">{{ hobby }}</ion-chip>
+        </div>
+      </ion-card-content>
+      <ion-row class="ion-justify-content-around">
+        <ion-button fill="clear">
+          <ion-icon name="heart-outline"></ion-icon>
+          {{ post.likes }}
+        </ion-button>
+        <ion-button fill="clear">
+          <ion-icon name="chatbubbles-outline"></ion-icon>
+          {{ post.commentCount }}
+        </ion-button>
+      </ion-row>
+    </ion-card>
+  </ion-list>
+
+  <div *ngIf="!isLoading && posts.length === 0" class="info-message">
+    Nenhum post encontrado.
+  </div>
+
+  <ion-infinite-scroll (ionInfinite)="loadPosts($event)" [disabled]="infiniteScrollDisabled">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Carregando mais posts..."></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>
+
+<style>
+  .hobbies-container {
+    margin-top: 10px;
+  }
+  .loading-posts {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  .info-message {
+    text-align: center;
+    margin-top: 20px;
+  }
+</style>

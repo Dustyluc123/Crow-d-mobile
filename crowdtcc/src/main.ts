@@ -1,33 +1,34 @@
 // src/main.ts
 
 import { bootstrapApplication } from '@angular/platform-browser';
-import { Routes, provideRouter, CanActivateFn, Router } from '@angular/router'; // Adicione CanActivateFn e Router
+import { Routes, provideRouter, CanActivateFn, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular/standalone';
-import { inject } from '@angular/core'; // Adicione inject
-import { firstValueFrom } from 'rxjs'; // Adicione firstValueFrom
+import { inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 import { provideFirebaseApp, initializeApp, getApp } from '@angular/fire/app';
 import { provideAuth, initializeAuth, indexedDBLocalPersistence } from '@angular/fire/auth';
+
+// ADICIONADO: Importações do Firestore
+import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 
 import { addIcons } from 'ionicons';
 import { logoGoogle } from 'ionicons/icons';
 
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
-import { AuthService } from './app/services/auth'; // Importe o AuthService aqui
+import { AuthService } from './app/services/auth';
 
 // --- LÓGICA DAS GUARDAS DE ROTA ---
-// Colocamos a lógica que estava em auth.guard.ts diretamente aqui
-
+// (Código omitido por ser grande, mas inalterado)
 const authGuard: CanActivateFn = async () => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const user = await firstValueFrom(authService.currentUser);
 
   if (user) {
-    return true; // Usuário logado, pode acessar a rota
+    return true;
   }
-  // Usuário não logado, redireciona para a página de login
   return router.parseUrl('/login');
 };
 
@@ -37,10 +38,8 @@ const publicGuard: CanActivateFn = async () => {
   const user = await firstValueFrom(authService.currentUser);
 
   if (user) {
-    // Usuário já está logado, redireciona para a home
     return router.parseUrl('/home');
   }
-  // Usuário não está logado, pode acessar a rota de login/registro
   return true;
 };
 // --- FIM DA LÓGICA DAS GUARDAS ---
@@ -51,17 +50,17 @@ const routes: Routes = [
   {
     path: 'login',
     loadComponent: () => import('./app/pages/login/login.page').then(m => m.LoginPage),
-    canActivate: [publicGuard] // Protege a rota de login
+    canActivate: [publicGuard]
   },
   {
     path: 'register',
     loadComponent: () => import('./app/pages/register/register.page').then(m => m.RegisterPage),
-    canActivate: [publicGuard] // Protege a rota de registro
+    canActivate: [publicGuard]
   },
   {
     path: 'home',
     loadComponent: () => import('./app/home/home.page').then(m => m.HomePage),
-    canActivate: [authGuard] // Protege a rota home
+    canActivate: [authGuard]
   },
   { path: '**', redirectTo: 'login' },
 ];
@@ -77,5 +76,7 @@ bootstrapApplication(AppComponent, {
       const app = getApp();
       return initializeAuth(app, { persistence: indexedDBLocalPersistence });
     }),
+    // ADICIONADO: Provedor do Firestore
+    provideFirestore(() => getFirestore()),
   ],
 });
